@@ -156,16 +156,18 @@ app.post('/ai', (req, res) => {
   
   let shippingUrl = HOST_URL + "admin/shipping_zones.json";
 
-  console.log("\nS  hopify url :" +shippingUrl);
+  console.log("\nShopify url :" +shippingUrl);
   let shipRate=0;
       
       request.get(shippingUrl, (err, response, body) => {
+
+        console.log(response+JSON.parse(body));
         if (!err && response.statusCode == 200) {
           let shipping_zones = JSON.parse(body);
 
           console.log("\nShopify shipping info: " +shipping_zones )
           
-          if (geo-country.toUpperCase() ==='CANADA'){
+          if (address.toUpperCase() ==='CANADA'){
 
             shipRate='55';
           }
@@ -174,9 +176,8 @@ app.post('/ai', (req, res) => {
             shipRate='155';
           }
         //   let shipRates = shipping_zones[0].weight_based_shipping_rates;
-          console.log('\n conversionRates --> ' + JSON.stringify(conversionRates));
           
-          let msg = 'The shipping rate to '+address + shipRate;
+          let msg = 'The shipping rate to '+address+':' + shipRate;
           return res.json({speech: msg, displayText: msg, source: 'shipping'});
         } else {
           let errorMessage = 'I failed to look up the shipping.';
