@@ -31,7 +31,9 @@
       "express": "^4.16.2",
       "moment": "^2.19.1",
       "moment-timezone": "^0.5.14",
-      "request": "^2.83.0"
+      "request": "^2.83.0",
+      "shopify-api-node": "^2.8.0",
+      "ngrok": "^2.2.22" 
     },
     "devDependencies": {
       "nodemon": "^1.12.1"

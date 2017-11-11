@@ -9,6 +9,31 @@ const bodyParser = require('body-parser');
 const request = require('request');
 const apiai = require('apiai');
 const moment = require('moment-timezone');
+const Shopify = require('shopify-api-node');
+
+
+const SHOPIFY_SHOP_NAME = (process.env.SHOP_NAME) ? 
+process.env.SHOP_NAME :
+config.get('sh_shopName');  
+
+const SHOPIFY_API_KEY = (process.env.SHOP_API_KEY) ? 
+process.env.SHOP_API_KEY :
+config.get('sh_apiKey');  
+
+const SHOPIFY_API_PASSWORD = (process.env.SHOP_API_PASSWORD) ? 
+process.env.SHOP_API_PASSWORD :
+config.get('sh_apiPassword');  
+
+const HOST_URL = (process.env.HOST_URL) ? 
+process.env.HOST_URL :
+config.get('host_url'); 
+
+const shopify = new Shopify({
+    shopName: SHOPIFY_SHOP_NAME,
+    apiKey: SHOPIFY_API_KEY,
+    password: SHOPIFY_API_PASSWORD
+  });
+ 
 
 const app = express();
 app.set('port', (process.env.PORT || 5000));
@@ -179,4 +204,31 @@ app.post('/ai', (req, res) => {
           }
         });
   }
+  if (req.body.result.action === 'shipping') {
+    console.log('\n\n*** Shipping *** Time Stamp :' + estTimeStamp + '\n');
+    let address = req.body.result.parameters['address'];
+    // let unitCurrency = req.body.result.parameters.unit-currency['amount'];
+    let shippingUrl = 'https://api.fixer.io/latest?base=' + fromCurrency +
+        '&symbols=' + toCurrency;
+        
+        request.get(fixerCurrencyUrl, (err, response, body) => {
+          if (!err && response.statusCode == 200) {
+            let currecnyJson = JSON.parse(body);
+            console.log('\nfixerCurrencyUrl response --> \n' + JSON.stringify(currecnyJson));
+            let conversionRates = currecnyJson.rates[toCurrency];
+            console.log('\n conversionRates --> ' + JSON.stringify(conversionRates));
+            
+            let msg = 'The current currency conversion rate from ' + currecnyJson.base + ' to ' +
+            toCurrency+ ' : '+ conversionRates  ;
+            return res.json({speech: msg, displayText: msg, source: 'currency'});
+          } else {
+            let errorMessage = 'I failed to look up the currency.';
+            return res.status(400).json(
+                {status: {code: 400, errorType: errorMessage}});
+          }
+        });
+  }
+
+
+
 });
