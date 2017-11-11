@@ -1,7 +1,7 @@
 'use strict';
 const PAGE_ACCESS_TOKEN =
     'EAACTY2uvuOkBACccJs0PNA8i9UecT6D9XrhLLZAiuyN4k23AMtbwSP7FRRm8inSjEuaDD7myfDFDmtS8ZALNZAOmJTD7OFEoSCiAVIKJrbz7nusdaBFRNjl8BKMTrL3bNevr55Ijx5Nkax3G7Tsb3PU2Frqq7YCgWUKv66HjwZDZD';
-const APIAI_TOKEN = '8efcfc62d41a455a988392716ec4b846';
+const APIAI_TOKEN = '56d653a3ae7a40e39bcd0896d535a80c';
 const WEATHER_API_KEY = '098696f24429f40a428d56fde3d4a6e7';
 
 const express = require('express');
@@ -12,21 +12,14 @@ const moment = require('moment-timezone');
 const Shopify = require('shopify-api-node');
 
 
-const SHOPIFY_SHOP_NAME = (process.env.SHOP_NAME) ? 
-process.env.SHOP_NAME :
-config.get('sh_shopName');  
+const SHOPIFY_SHOP_NAME = "dev-circle-toronto-hackathon";
 
-const SHOPIFY_API_KEY = (process.env.SHOP_API_KEY) ? 
-process.env.SHOP_API_KEY :
-config.get('sh_apiKey');  
+const SHOPIFY_API_KEY =  "dc032c19e4460b1e9df1b31b86417fae";
 
-const SHOPIFY_API_PASSWORD = (process.env.SHOP_API_PASSWORD) ? 
-process.env.SHOP_API_PASSWORD :
-config.get('sh_apiPassword');  
+const SHOPIFY_API_PASSWORD =  "52db31500c4d546381f9aedacbe707bc";
 
-const HOST_URL = (process.env.HOST_URL) ? 
-process.env.HOST_URL :
-config.get('host_url'); 
+const HOST_URL = "https://dc032c19e4460b1e9df1b31b86417fae:52db31500c4d546381f9aedacbe707bc@dev-circle-toronto-hackathon.myshopify.com/";
+
 
 const shopify = new Shopify({
     shopName: SHOPIFY_SHOP_NAME,
@@ -154,81 +147,128 @@ app.post('/ai', (req, res) => {
   console.log('*** Webhook for api.ai query ***');
   console.log(req.body.result.action);
 
-  if (req.body.result.action === 'weather') {
-    console.log('\n\n*** weather *** Time Stamp :' + estTimeStamp + '\n');
-    let city = req.body.result.parameters['geo-city'];
-    let openWeatherMapUrl =
-        'http://api.openweathermap.org/data/2.5/weather?APPID=' +
-        WEATHER_API_KEY + '&q=' + city;
 
-    request.get(openWeatherMapUrl, (err, response, body) => {
-      if (!err && response.statusCode == 200) {
-        let json = JSON.parse(body);
-        console.log('openweathermap response --> \n' + JSON.stringify(json));
-        let tempF = ~~(json.main.temp * 9 / 5 - 459.67);
-        let tempC = ~~(json.main.temp - 273.15);
-        let msg = 'The current condition in ' + json.name + ' is ' +
-            json.weather[0].description + ' and the temperature is ' + tempF +
-            ' ℉ (' + tempC + ' ℃).';
-        return res.json({speech: msg, displayText: msg, source: 'weather'});
-      } else {
-        let errorMessage = 'I failed to look up the city name.';
-        return res.status(400).json(
-            {status: {code: 400, errorType: errorMessage}});
-      }
-    });
-    }
+  switch(req.body.result.action)
+  {
+  case 'shipping':
+  console.log('\n\n*** Shipping *** Time Stamp :' + estTimeStamp + '\n');
+  let address = req.body.result.parameters['geo-country'];
+  
+  let shippingUrl = HOST_URL + "admin/shipping_zones.json";
 
-  if (req.body.result.action === 'currency') {
-    console.log('\n\n*** Currency *** Time Stamp :' + estTimeStamp + '\n');
-    let fromCurrency = req.body.result.parameters['from-currency'];
-    let toCurrency = req.body.result.parameters['to-currency'];
-    // let unitCurrency = req.body.result.parameters.unit-currency['amount'];
-    let fixerCurrencyUrl = 'https://api.fixer.io/latest?base=' + fromCurrency +
-        '&symbols=' + toCurrency;
-        
-        request.get(fixerCurrencyUrl, (err, response, body) => {
-          if (!err && response.statusCode == 200) {
-            let currecnyJson = JSON.parse(body);
-            console.log('\nfixerCurrencyUrl response --> \n' + JSON.stringify(currecnyJson));
-            let conversionRates = currecnyJson.rates[toCurrency];
-            console.log('\n conversionRates --> ' + JSON.stringify(conversionRates));
-            
-            let msg = 'The current currency conversion rate from ' + currecnyJson.base + ' to ' +
-            toCurrency+ ' : '+ conversionRates  ;
-            return res.json({speech: msg, displayText: msg, source: 'currency'});
-          } else {
-            let errorMessage = 'I failed to look up the currency.';
-            return res.status(400).json(
-                {status: {code: 400, errorType: errorMessage}});
+  console.log("\nS  hopify url :" +shippingUrl);
+  let shipRate=0;
+      
+      request.get(shippingUrl, (err, response, body) => {
+        if (!err && response.statusCode == 200) {
+          let shipping_zones = JSON.parse(body);
+
+          console.log("\nShopify shipping info: " +shipping_zones )
+          
+          if (geo-country.toUpperCase() ==='CANADA'){
+
+            shipRate='55';
           }
-        });
-  }
-  if (req.body.result.action === 'shipping') {
-    console.log('\n\n*** Shipping *** Time Stamp :' + estTimeStamp + '\n');
-    let address = req.body.result.parameters['address'];
-    // let unitCurrency = req.body.result.parameters.unit-currency['amount'];
-    let shippingUrl = 'https://api.fixer.io/latest?base=' + fromCurrency +
-        '&symbols=' + toCurrency;
-        
-        request.get(fixerCurrencyUrl, (err, response, body) => {
-          if (!err && response.statusCode == 200) {
-            let currecnyJson = JSON.parse(body);
-            console.log('\nfixerCurrencyUrl response --> \n' + JSON.stringify(currecnyJson));
-            let conversionRates = currecnyJson.rates[toCurrency];
-            console.log('\n conversionRates --> ' + JSON.stringify(conversionRates));
-            
-            let msg = 'The current currency conversion rate from ' + currecnyJson.base + ' to ' +
-            toCurrency+ ' : '+ conversionRates  ;
-            return res.json({speech: msg, displayText: msg, source: 'currency'});
-          } else {
-            let errorMessage = 'I failed to look up the currency.';
-            return res.status(400).json(
-                {status: {code: 400, errorType: errorMessage}});
+          else{
+
+            shipRate='155';
           }
-        });
+        //   let shipRates = shipping_zones[0].weight_based_shipping_rates;
+          console.log('\n conversionRates --> ' + JSON.stringify(conversionRates));
+          
+          let msg = 'The shipping rate to '+address + shipRate;
+          return res.json({speech: msg, displayText: msg, source: 'shipping'});
+        } else {
+          let errorMessage = 'I failed to look up the shipping.';
+          return res.status(400).json(
+              {status: {code: 400, errorType: errorMessage}});
+        }
+      });
+       break;
+
+  default:
+        // code to be executed if n is different from first 2 cases.
   }
 
 
+
+
+
+
+
+//   if (req.body.result.action === 'weather') {
+//     console.log('\n\n*** weather *** Time Stamp :' + estTimeStamp + '\n');
+//     let city = req.body.result.parameters['geo-city'];
+//     let openWeatherMapUrl =
+//         'http://api.openweathermap.org/data/2.5/weather?APPID=' +
+//         WEATHER_API_KEY + '&q=' + city;
+
+//     request.get(openWeatherMapUrl, (err, response, body) => {
+//       if (!err && response.statusCode == 200) {
+//         let json = JSON.parse(body);
+//         console.log('openweathermap response --> \n' + JSON.stringify(json));
+//         let tempF = ~~(json.main.temp * 9 / 5 - 459.67);
+//         let tempC = ~~(json.main.temp - 273.15);
+//         let msg = 'The current condition in ' + json.name + ' is ' +
+//             json.weather[0].description + ' and the temperature is ' + tempF +
+//             ' ℉ (' + tempC + ' ℃).';
+//         return res.json({speech: msg, displayText: msg, source: 'weather'});
+//       } else {
+//         let errorMessage = 'I failed to look up the city name.';
+//         return res.status(400).json(
+//             {status: {code: 400, errorType: errorMessage}});
+//       }
+//     });
+//     }
+
+//   if (req.body.result.action === 'currency') {
+//     console.log('\n\n*** Currency *** Time Stamp :' + estTimeStamp + '\n');
+//     let fromCurrency = req.body.result.parameters['from-currency'];
+//     let toCurrency = req.body.result.parameters['to-currency'];
+//     // let unitCurrency = req.body.result.parameters.unit-currency['amount'];
+//     let fixerCurrencyUrl = 'https://api.fixer.io/latest?base=' + fromCurrency +
+//         '&symbols=' + toCurrency;
+        
+//         request.get(fixerCurrencyUrl, (err, response, body) => {
+//           if (!err && response.statusCode == 200) {
+//             let currecnyJson = JSON.parse(body);
+//             console.log('\nfixerCurrencyUrl response --> \n' + JSON.stringify(currecnyJson));
+//             let conversionRates = currecnyJson.rates[toCurrency];
+//             console.log('\n conversionRates --> ' + JSON.stringify(conversionRates));
+            
+//             let msg = 'The current currency conversion rate from ' + currecnyJson.base + ' to ' +
+//             toCurrency+ ' : '+ conversionRates  ;
+//             return res.json({speech: msg, displayText: msg, source: 'currency'});
+//           } else {
+//             let errorMessage = 'I failed to look up the currency.';
+//             return res.status(400).json(
+//                 {status: {code: 400, errorType: errorMessage}});
+//           }
+//         });
+//   }
+//   if (req.body.result.action === 'shipping') {
+//     console.log('\n\n*** Shipping *** Time Stamp :' + estTimeStamp + '\n');
+//     let address = req.body.result.parameters['address'];
+//     // let unitCurrency = req.body.result.parameters.unit-currency['amount'];
+//     let shippingUrl = 'https://api.fixer.io/latest?base=' + fromCurrency +
+//         '&symbols=' + toCurrency;
+        
+//         request.get(fixerCurrencyUrl, (err, response, body) => {
+//           if (!err && response.statusCode == 200) {
+//             let currecnyJson = JSON.parse(body);
+//             console.log('\nfixerCurrencyUrl response --> \n' + JSON.stringify(currecnyJson));
+//             let conversionRates = currecnyJson.rates[toCurrency];
+//             console.log('\n conversionRates --> ' + JSON.stringify(conversionRates));
+            
+//             let msg = 'The current currency conversion rate from ' + currecnyJson.base + ' to ' +
+//             toCurrency+ ' : '+ conversionRates  ;
+//             return res.json({speech: msg, displayText: msg, source: 'currency'});
+//           } else {
+//             let errorMessage = 'I failed to look up the currency.';
+//             return res.status(400).json(
+//                 {status: {code: 400, errorType: errorMessage}});
+//           }
+//         });
+//   }
 
 });
