@@ -469,12 +469,12 @@ function sendButtonMessages(recipientId, requestForHelpOnFeature) {
 
         templateElements.push({
           title: options,
-          subtitle: "Sizing",
+          subtitle: "Sizing/Colors",
           buttons: [
             {
               type: "web_url",
               url: "https://candyboxx.com/pages/sizing",
-              title: "How to Measure",
+              title: "Measure size"
               // webview_height_ratio: "compact",
               // messenger_extensions: "true"
             }
@@ -563,9 +563,9 @@ app.post("/ai", (req, res) => {
           console.log("\nShopify shipping info: " + shipping_zones);
 
           if (address.toUpperCase() === "CANADA") {
-            shipRate = "55";
+            shipRate = "20";
           } else {
-            shipRate = "155";
+            shipRate = "45";
           }
           //   let shipRates = shipping_zones[0].weight_based_shipping_rates;
 
