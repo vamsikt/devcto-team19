@@ -10,6 +10,7 @@
 #Imlementation:The application receives messanges from user using messanger bot framework..and use Dialogflow NLP and Shopify store apis. 
 
 ###features:
+
 Dialogflow API:  create user intents and agents in Dialogflow API to process user queries NLP to actions.
 
 
