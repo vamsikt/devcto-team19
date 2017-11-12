@@ -217,7 +217,9 @@ function receivedMessage(event) {
           console.log("searchText->" + searchText);
 
           let searchShopifyURL =
-            HOST_URL + "admin/products.json?tags="+searchText+"&title=" + searchText + "&limit=10";
+            // HOST_URL + "admin/products.json?tags="+searchText+"&title=" + searchText + "&limit=10";
+            HOST_URL + "admin/products.json?tags="+searchText+ "&limit=10";
+            
           console.log(searchShopifyURL);
           request.get(searchShopifyURL, (err, response, body) => {
             if (!err && response.statusCode == 200) {
@@ -306,7 +308,7 @@ function sendHelpOptionsAsButtonTemplates(recipientId, products) {
   var templateElements = [];
   products.forEach(function(product) {
     var url = HOST_URL + "products/" + product.handle;
-    console.log("Product url -\n" + url);
+    // console.log("Product url -\n" + url);
     templateElements.push({
       title: product.title,
       subtitle: product.tags,
@@ -319,7 +321,7 @@ function sendHelpOptionsAsButtonTemplates(recipientId, products) {
           // webview_height_ratio: "compact",
           // messenger_extensions: "true"
         },
-        sectionButton("Check avaliable Sizes:", "QR_GET_PRODUCT_OPTIONS", {
+        sectionButton("Check avaliable Sizes and colors", "QR_GET_PRODUCT_OPTIONS", {
           id: product.id
         }),
         sectionButton("Check Price", "QR_GET_PRODUCT_PRICE", {
