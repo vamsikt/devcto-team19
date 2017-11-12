@@ -217,7 +217,7 @@ function receivedMessage(event) {
           console.log("searchText->" + searchText);
 
           let searchShopifyURL =
-            HOST_URL + "admin/products.json?title=" + searchText + "&limit=5";
+            HOST_URL + "admin/products.json?tags="+searchText+"&title=" + searchText + "&limit=10";
           console.log(searchShopifyURL);
           request.get(searchShopifyURL, (err, response, body) => {
             if (!err && response.statusCode == 200) {
@@ -225,6 +225,7 @@ function receivedMessage(event) {
               console.log("shopify result-->" + product_json.products.length);
 
               if (product_json.products.length < 1) {
+
                 let errorMessage =
                   "I failed to look up the your search item in our store.do you want to search something else?";
                 prepareSendTextMessage(sender, errorMessage);
