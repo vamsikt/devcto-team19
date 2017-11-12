@@ -315,8 +315,8 @@ function sendHelpOptionsAsButtonTemplates(recipientId, products) {
           type: "web_url",
           url: url,
           title: "Read description",
-          webview_height_ratio: "compact",
-          messenger_extensions: "true"
+          // webview_height_ratio: "compact",
+          // messenger_extensions: "true"
         },
         sectionButton("Check avaliable Sizes:", "QR_GET_PRODUCT_OPTIONS", {
           id: product.id
@@ -400,6 +400,7 @@ function sendButtonMessages(recipientId, requestForHelpOnFeature) {
           },
           message: {
             text: variants.substring(0, 640)
+            // url:
             // quick_replies: [
             //   textButton("Get 3 products", "QR_GET_PRODUCT_LIST", { limit: 3 })
             // ]
@@ -463,17 +464,50 @@ function sendButtonMessages(recipientId, requestForHelpOnFeature) {
           options =
             options + option.name + ": " + option.values.join(",") + "\n";
         });
+
+        var templateElements = [];
+
+        templateElements.push({
+          title: options,
+          subtitle: "Sizing",
+          buttons: [
+            {
+              type: "web_url",
+              url: "https://candyboxx.com/pages/sizing",
+              title: "How to Measure",
+              // webview_height_ratio: "compact",
+              // messenger_extensions: "true"
+            }
+          ]
+        });
+        // var messageData = {
+        //   recipient: {
+        //     id: recipientId
+        //   },
+        //   message: {
+        //     text: options.substring(0, 640)
+        //     // quick_replies: [
+        //     //   textButton("Get 3 products", "QR_GET_PRODUCT_LIST", { limit: 3 })
+        //     // ]
+        //   }
+        // };
+
         var messageData = {
           recipient: {
             id: recipientId
           },
           message: {
-            text: options.substring(0, 640)
-            // quick_replies: [
-            //   textButton("Get 3 products", "QR_GET_PRODUCT_LIST", { limit: 3 })
-            // ]
+            attachment: {
+              type: "template",
+              payload: {
+                template_type: "generic",
+                elements: templateElements
+              }
+            }
           }
         };
+
+
         sendMessagetoFB(messageData);
       });
 
