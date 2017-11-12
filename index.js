@@ -213,7 +213,7 @@ function receivedMessage(event) {
           //&limit=1
           let searchText = response.result.parameters["userSearchText"]
             ? response.result.parameters["userSearchText"]
-            : "Leggings";
+            : "Leggings tank yoga 50-75 Apparel active";
           console.log("searchText->" + searchText);
 
           let searchShopifyURL =
