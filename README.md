@@ -1,6 +1,10 @@
 #DeveloperCirclesTorontoHack2017
+
 ##Team Number -  19
+
 ##Team Names : Vamsi,David ,Anita,Chanelle
+
+
 ###Description : fb messanger bot for shopify store
 #Tech Stack:FB messanger framework,Dialogflow API,Shopify API.
 #Imlementation:The application receives messanges from user using messanger bot framework..and use Dialogflow NLP and Shopify store apis. 
