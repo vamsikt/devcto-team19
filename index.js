@@ -61,29 +61,6 @@ app.get("/webhook", function(req, res) {
   }
 });
 
-/* Handling all messenges */
-// app.post("/webhook", (req, res) => {
-//   console.log("\n\nTime Stamp :" + estTimeStamp + "\n");
-//   console.log("post method  webhook--> \n" + req.body.object);
-//   if (req.body.object === "page") {
-//     req.body.entry.forEach(entry => {
-//       entry.messaging.forEach(event => {
-//         if (event.message && event.message.text) {
-//           console.log(
-//             "\n\nreceive event Time Stamp :" +
-//               estTimeStamp +
-//               "\t" +
-//               event +
-//               "\n"
-//           );
-//           receivedMessage(event);
-//         }
-//       });
-//     });
-//     res.status(200).end();
-//   }
-// });
-
 app.post("/webhook", function(req, res) {
   // You must send back a status 200 to let the Messenger Platform know that you've
   // received the callback. Do that right away because the countdown doesn't stop when
@@ -217,8 +194,10 @@ function receivedMessage(event) {
           console.log("searchText->" + searchText);
 
           let searchShopifyURL =
-            // HOST_URL + "admin/products.json?tags="+searchText+"&title=" + searchText + "&limit=10";
-            HOST_URL + "admin/products.json?tags="+searchText+ "&limit=10";
+            HOST_URL + "admin/products.json?tags="+searchText+"&title=" + searchText + "&limit=10";
+            // HOST_URL + "admin/products.json?tags="+searchText+ "&limit=10";
+            HOST_URL + "admin/products.json";
+            
             
           console.log(searchShopifyURL);
           request.get(searchShopifyURL, (err, response, body) => {
@@ -232,7 +211,7 @@ function receivedMessage(event) {
                   "I failed to look up the your search item in our store.do you want to search something else?";
                 prepareSendTextMessage(sender, errorMessage);
               } else {
-                sendHelpOptionsAsButtonTemplates(sender, product_json.products);
+                sendProductsOptionsAsButtonTemplates(sender, product_json.products,searchText);
                 // sendButtonMessages(sender, requestForHelpOnFeature);
               }
             } else {
@@ -266,7 +245,7 @@ function receivedMessage(event) {
   apiaiSession.end();
 }
 
-function sendHelpOptionsAsButtonTemplates(recipientId, products) {
+function sendProductsOptionsAsButtonTemplates(recipientId, products,searchTag) {
   console.log(
     "[sendHelpOptionsAsButtonTemplates] Sending the help options menu"
   );
@@ -309,6 +288,7 @@ function sendHelpOptionsAsButtonTemplates(recipientId, products) {
   products.forEach(function(product) {
     var url = HOST_URL + "products/" + product.handle;
     // console.log("Product url -\n" + url);
+    
     templateElements.push({
       title: product.title,
       subtitle: product.tags,
