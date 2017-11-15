@@ -1,0 +1,33 @@
+{
+  "name": "devcto-team19",
+  "description": "Shopify messanger bot",
+  "main": "index.js",
+  "authors": [
+    "vamsi"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "fb",
+    "bot",
+    "api.ai"
+  ],
+  "homepage": "https://github.com/vamsikt/devcto-team19",
+  "private": true,
+  "dependencies": {
+    "apiai": "^4.0.3",
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
+    "moment": "^2.19.1",
+    "moment-timezone": "^0.5.14",
+    "request": "^2.83.0",
+    "shopify-api-node": "^2.8.0",
+    "ngrok": "^2.2.22"
+},
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
