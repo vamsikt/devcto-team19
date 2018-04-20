@@ -1,6 +1,6 @@
 "use strict";
 const PAGE_ACCESS_TOKEN =
-  "EAACTY2uvuOkBACccJs0PNA8i9UecT6D9XrhLLZAiuyN4k23AMtbwSP7FRRm8inSjEuaDD7myfDFDmtS8ZALNZAOmJTD7OFEoSCiAVIKJrbz7nusdaBFRNjl8BKMTrL3bNevr55Ijx5Nkax3G7Tsb3PU2Frqq7YCgWUKv66HjwZDZD";
+  "EAACTY2uvuOkBAFBcPFvJriCcPDyyTNgBXQLsSLU08e9ZAYQf5uRBogoUVPzpI2KZB8C4krfvu541IPGMihLjIr7klOGnoFHHWDuYSPZChKnIAgQAIZC4JCfUxAZBNcqhn8psy1BihTKMHgPcPqVPAZCZBcKRFANC50MrdPZCUdcEvQZDZD";
 const APIAI_TOKEN = "9093b127fa0f4769ae2b4453b794c5cf";
 const WEATHER_API_KEY = "098696f24429f40a428d56fde3d4a6e7";
 const FB_VALIDATION_TOKEN = "Team19";
@@ -10,7 +10,11 @@ const request = require("request");
 const apiai = require("apiai");
 const moment = require("moment-timezone");
 const Shopify = require("shopify-api-node");
+const clarifai = require('clarifai');
 
+const clarifaiapp = new clarifai.App({
+  apiKey: 'b8776e47515c4c16a5ca8f6dff722b0e'
+ });
 const SHOPIFY_SHOP_NAME = "dev-circle-toronto-hackathon";
 
 const SHOPIFY_API_KEY = "dc032c19e4460b1e9df1b31b86417fae";
@@ -61,29 +65,6 @@ app.get("/webhook", function(req, res) {
   }
 });
 
-/* Handling all messenges */
-// app.post("/webhook", (req, res) => {
-//   console.log("\n\nTime Stamp :" + estTimeStamp + "\n");
-//   console.log("post method  webhook--> \n" + req.body.object);
-//   if (req.body.object === "page") {
-//     req.body.entry.forEach(entry => {
-//       entry.messaging.forEach(event => {
-//         if (event.message && event.message.text) {
-//           console.log(
-//             "\n\nreceive event Time Stamp :" +
-//               estTimeStamp +
-//               "\t" +
-//               event +
-//               "\n"
-//           );
-//           receivedMessage(event);
-//         }
-//       });
-//     });
-//     res.status(200).end();
-//   }
-// });
-
 app.post("/webhook", function(req, res) {
   // You must send back a status 200 to let the Messenger Platform know that you've
   // received the callback. Do that right away because the countdown doesn't stop when
@@ -106,8 +87,8 @@ app.post("/webhook", function(req, res) {
           propertyNames.push(prop);
         }
         console.log(
-          "[app.post] Webhook received a messagingEvent with properties: ",
-          propertyNames.join()
+          "[app.post] Webhook received a messagingEvent with properties:\n ",
+          +propertyNames.join()
         );
 
         if (messagingEvent.message) {
@@ -173,127 +154,134 @@ function receivedDeliveryConfirmation(event) {
       );
     });
   }
-
   console.log(
     "[receivedDeliveryConfirmation] All messages before timestamp %d were delivered.",
     watermark
   );
 }
 
-/* GET query from API.ai */
 
-function receivedMessage(event) {
-  let sender = event.sender.id;
-  let text = event.message.text;
+/*call to calrifi api */
 
-  let apiaiSession = apiaiApp.textRequest(text, { sessionId: "tabby_cat" });
+function sendToClarify(fbImgURL){
 
-  apiaiSession.on("response", response => {
-    console.log(JSON.stringify(response));
-    let aiTextAction = response.result.action;
-    let aiTextResponse = response.result.fulfillment.speech;
-
-    console.log(
-      "\n****************************processing event****************************\n"
-    );
-    console.log("aiTextAction-->" + aiTextAction);
-
-    switch (aiTextAction) {
-      case "SHOW_BIOGRAPHY":
-        console.log(
-          "\n\nswitch to prepareSendBio Time Stamp :" + estTimeStamp + "\n"
-        );
-        prepareSendBio(sender);
-        break;
-      case "search":
-        if (
-          response.result.parameters["userSearchText"] ||
-          response.result.parameters["recommandType"]
-        ) {
-          //&limit=1
-          let searchText = response.result.parameters["userSearchText"]
-            ? response.result.parameters["userSearchText"]
-            : "Leggings tank yoga 50-75 Apparel active";
-          console.log("searchText->" + searchText);
-
-          let searchShopifyURL =
-            // HOST_URL + "admin/products.json?tags="+searchText+"&title=" + searchText + "&limit=10";
-            HOST_URL + "admin/products.json?tags="+searchText+ "&limit=10";
-            
-          console.log(searchShopifyURL);
-          request.get(searchShopifyURL, (err, response, body) => {
-            if (!err && response.statusCode == 200) {
-              let product_json = JSON.parse(body);
-              console.log("shopify result-->" + product_json.products.length);
-
-              if (product_json.products.length < 1) {
-
-                let errorMessage =
-                  "I failed to look up the your search item in our store.do you want to search something else?";
-                prepareSendTextMessage(sender, errorMessage);
-              } else {
-                sendHelpOptionsAsButtonTemplates(sender, product_json.products);
-                // sendButtonMessages(sender, requestForHelpOnFeature);
-              }
-            } else {
-              let errorMessage = "I failed to look up the your search.";
-              prepareSendTextMessage(sender, errorMessage);
-            }
-          });
-        } else {
-          let errorMessage = "please narrow down your search.";
-          prepareSendTextMessage(sender, errorMessage);
-
-          //ask users something to search
-        }
-
-        break;
-
-      default:
-        console.log(
-          "\n\nswitch to prepareSendTextMessage Time Stamp :" +
-            estTimeStamp +
-            "\n"
-        );
-        prepareSendTextMessage(sender, aiTextResponse);
+  clarifaiapp.models.predict('e0be3b9d6a454f0493ac3a30784001ff', fbImgURL).then(
+    function(response) {
+      
+      console.log("Clarify response - \n "+response);
+    },
+    function(err) {
+      console.error(err);
     }
-  });
-
-  apiaiSession.on("error", error => {
-    console.log(error);
-  });
-
-  apiaiSession.end();
+  );
 }
 
-function sendHelpOptionsAsButtonTemplates(recipientId, products) {
+
+/* Received message from FB-> send it to api.ai to get action -> GET query from API.ai for the text */
+
+function receivedMessage(event) {
+  console.log(JSON.stringify(event));
+  let sender = event.sender.id;
+  let text = event.message.text;
+  let receivedMessage = event.message;
+
+  if (receivedMessage.attachments && receivedMessage.attachments[0].payload.url) {
+    let attachedImgURL = receivedMessage.attachments[0].payload.url;
+    console.log("Received image message : %s" + attachedImgURL);
+
+  sendToClarify(attachedImgURL);
+  } else {
+    let apiaiSession = apiaiApp.textRequest(text, { sessionId: "tabby_cat" });
+
+    apiaiSession.on("response", response => {
+      console.log(JSON.stringify(response));
+      let aiTextAction = response.result.action;
+      let aiTextResponse = response.result.fulfillment.speech;
+
+      console.log(
+        "\n****************************processing event****************************\n"
+      );
+      console.log("aiTextAction-->" + aiTextAction);
+
+      switch (aiTextAction) {
+        case "SHOW_BIOGRAPHY":
+          console.log(
+            "\n\nswitch to prepareSendBio Time Stamp :" + estTimeStamp + "\n"
+          );
+          prepareSendBio(sender);
+          break;
+        case "search":
+          if (
+            response.result.parameters["userSearchText"] ||
+            response.result.parameters["recommandType"]
+          ) {
+            //&limit=1
+            let searchText = response.result.parameters["userSearchText"]
+              ? response.result.parameters["userSearchText"]
+              : "Leggings tank yoga 50-75 Apparel active";
+            console.log("searchText->" + searchText);
+
+            let searchShopifyURL =
+              HOST_URL +
+              "admin/products.json?title=" +
+              searchText +
+              "&limit=10";
+          
+            console.log(searchShopifyURL);
+            request.get(searchShopifyURL, (err, response, body) => {
+              if (!err && response.statusCode == 200) {
+                let product_json = JSON.parse(body);
+                console.log("shopify result-->" + product_json.products.length);
+
+                if (product_json.products.length < 1) {
+                  let errorMessage =
+                    "I failed to look up the your search item in our store.do you want to search something else?";
+                  prepareSendTextMessage(sender, errorMessage);
+                } else {
+                  sendProductsOptionsAsButtonTemplates(
+                    sender,
+                    product_json.products,
+                    searchText
+                  );
+                  // sendButtonMessages(sender, requestForHelpOnFeature);
+                }
+              } else {
+                let errorMessage = "I failed to look up the your search.";
+                prepareSendTextMessage(sender, errorMessage);
+              }
+            });
+          } else {
+            let errorMessage = "please narrow down your search.";
+            prepareSendTextMessage(sender, errorMessage);
+
+            //ask users something to search
+          }
+
+          break;
+
+        default:
+          console.log(
+            "\n\nswitch to prepareSendTextMessage Time Stamp :" +
+              estTimeStamp +
+              "\n"
+          );
+          prepareSendTextMessage(sender, aiTextResponse);
+      }
+    });
+
+    apiaiSession.on("error", error => {
+      console.log(error);
+    });
+
+    apiaiSession.end();
+  }
+}
+
+function sendProductsOptionsAsButtonTemplates(recipientId, products,searchTag) {
   console.log(
     "[sendHelpOptionsAsButtonTemplates] Sending the help options menu"
   );
-  // var messageData = {
-  //   recipient: {
-  //     id: recipientId
-  //   },
-  //   message:{
-  //     attachment:{
-  //       type:"template",
-  //       payload:{
-  //         template_type:"button",
-  //         text:"Click the button before to get a list of 3 of our products.",
-  //         buttons:[
-  //           {
-  //             "type":"postback",
-  //             "title":"Get 3 products",
-  //             "payload":JSON.stringify({action: 'QR_GET_PRODUCT_LIST', limit: 5})
-  //           }
-  //           // limit of three buttons
-  //         ]
-  //       }
-  //     }
-  //   }
-  // };
-  // sendMessagetoFB(messageData);
-
+  
   // var products = shopify.product.list({ limit: requestPayload.limit });
   // products.then(function(listOfProducs) {
   var sectionButton = function(title, action, options) {
@@ -309,6 +297,7 @@ function sendHelpOptionsAsButtonTemplates(recipientId, products) {
   products.forEach(function(product) {
     var url = HOST_URL + "products/" + product.handle;
     // console.log("Product url -\n" + url);
+    
     templateElements.push({
       title: product.title,
       subtitle: product.tags,
@@ -349,15 +338,10 @@ function sendHelpOptionsAsButtonTemplates(recipientId, products) {
   // });
 }
 
+
 function sendButtonMessages(recipientId, requestForHelpOnFeature) {
-  // console.log(
-  //   "[respondToHelpRequestWithTemplates] handling help request for %s",
-  //   requestForHelpOnFeature
-  // );
   var templateElements = [];
-
   var requestPayload = JSON.parse(requestForHelpOnFeature);
-
   var sectionButton = function(title, action, options) {
     var payload = options | {};
     payload = Object.assign(options, { action: action });
@@ -414,51 +398,6 @@ function sendButtonMessages(recipientId, requestForHelpOnFeature) {
 
       break;
 
-    // case "QR_GET_PRODUCT_LIST":
-    //   console.log("requestPayload.action --default");
-
-    //   var products = shopify.product.list({ limit: requestPayload.limit });
-    //   products.then(function(listOfProducs) {
-    //     listOfProducs.forEach(function(product) {
-    //       var url = HOST_URL + "/product.html?id=" + product.id;
-    //       templateElements.push({
-    //         title: product.title,
-    //         subtitle: product.tags,
-    //         image_url: product.image.src,
-    //         buttons: [
-    //           {
-    //             type: "web_url",
-    //             url: url,
-    //             title: "Read description",
-    //             webview_height_ratio: "compact",
-    //             messenger_extensions: "true"
-    //           },
-    //           sectionButton("Get options", "QR_GET_PRODUCT_OPTIONS", {
-    //             id: product.id
-    //           })
-    //         ]
-    //       });
-    //     });
-    //     var messageData = {
-    //       recipient: {
-    //         id: recipientId
-    //       },
-    //       message: {
-    //         attachment: {
-    //           type: "template",
-    //           payload: {
-    //             template_type: "generic",
-    //             elements: templateElements
-    //           }
-    //         }
-    //       }
-    //     };
-
-    //     sendMessagetoFB(messageData);
-    //   });
-
-    //   break;
-
     case "QR_GET_PRODUCT_OPTIONS":
       var sh_product = shopify.product.get(requestPayload.id);
       sh_product.then(function(product) {
@@ -478,22 +417,9 @@ function sendButtonMessages(recipientId, requestForHelpOnFeature) {
               type: "web_url",
               url: "https://candyboxx.com/pages/sizing",
               title: "Measure size"
-              // webview_height_ratio: "compact",
-              // messenger_extensions: "true"
             }
           ]
         });
-        // var messageData = {
-        //   recipient: {
-        //     id: recipientId
-        //   },
-        //   message: {
-        //     text: options.substring(0, 640)
-        //     // quick_replies: [
-        //     //   textButton("Get 3 products", "QR_GET_PRODUCT_LIST", { limit: 3 })
-        //     // ]
-        //   }
-        // };
 
         var messageData = {
           recipient: {
@@ -509,7 +435,6 @@ function sendButtonMessages(recipientId, requestForHelpOnFeature) {
             }
           }
         };
-
 
         sendMessagetoFB(messageData);
       });
@@ -544,9 +469,6 @@ function prepareSendTextMessage(sender, aiText) {
 
 /* Webhook for API.ai to get response from the 3rd party API */
 app.post("/ai", (req, res) => {
-  // console.log("\n\napp.post API AI Time Stamp :" + estTimeStamp + "\n");
-  // console.log("*** Webhook for api.ai query ***");
-  // console.log(req.body.result.action);
   var templateElements = [];
   switch (req.body.result.action) {
     case "shipping":

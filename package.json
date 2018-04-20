@@ -1,41 +1,42 @@
 {
-    "name": "devcto-team19",
-    "version": "0.1.0",
-    "description": "shopify/messanger bot",
-    "engines": {
-        "node": "8.9.1"
-    },
-    "main": "index.js",
-    "scripts": {
-        "start": "node index.js"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/vamsikt/devcto-team19"
-    },
-    "keywords": [
-        "fb",
-        "bot",
-        "api.ai"
-    ],
-    "author": "vamsi",
-    "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/vamsikt/devcto-team19"
-    },
-    "homepage": "https://github.com/vamsikt/devcto-team19#readme",
-    "dependencies": {
-        "api.ai": "^1.0.3",
-        "apiai": "^4.0.3",
-        "body-parser": "^1.18.2",
-        "express": "^4.16.2",
-        "moment": "^2.19.1",
-        "moment-timezone": "^0.5.14",
-        "request": "^2.83.0",
-        "shopify-api-node": "^2.8.0",
-        "ngrok": "^2.2.22"
-    },
-    "devDependencies": {
-        "nodemon": "^1.12.1"
-    }
+  "name": "devcto-team19",
+  "version": "0.1.0",
+  "description": "shopify/messanger bot",
+  "engines": {
+    "node": "8.9.1"
+  },
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vamsikt/devcto-team19"
+  },
+  "keywords": [
+    "fb",
+    "bot",
+    "api.ai"
+  ],
+  "author": "vamsi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/vamsikt/devcto-team19"
+  },
+  "homepage": "https://github.com/vamsikt/devcto-team19#readme",
+  "dependencies": {
+    "api.ai": "^1.0.3",
+    "apiai": "^4.0.3",
+    "body-parser": "^1.18.2",
+    "clarifai": "^2.5.0",
+    "express": "^4.16.2",
+    "moment": "^2.19.1",
+    "moment-timezone": "^0.5.14",
+    "ngrok": "^2.2.22",
+    "request": "^2.83.0",
+    "shopify-api-node": "^2.8.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.12.1"
+  }
 }
